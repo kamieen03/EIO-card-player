@@ -1,11 +1,11 @@
-from Player import Player
+from players.Player import Player
 import numpy as np
 
 ### Implement player's strategy. You can compare it with random player 
 ### (or some strategy implemented by one of you colleagues)
 ### Time limit per decision 0.01s !!!
 
-class YourPlayer(Player):
+class MyPlayer(Player):
     
     ### player's random strategy
     def putCard(self, declared_card):
