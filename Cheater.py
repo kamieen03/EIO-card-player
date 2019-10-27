@@ -22,7 +22,7 @@ def print_n_moves(n):
         game.takeTurn()
 
     
-def simulate_n_games(n):
+def simulate_n_games(n, p1, p2):
 ### Perform a full game n times
     stats_wins = [0, 0]
     stats_moves = [0, 0]
@@ -36,8 +36,8 @@ def simulate_n_games(n):
     errors = 0
 
     for t in range(n):
-        player1 = SimplePlayer("Player A")
-        player2 = RandomPlayer("Player B")
+        player1 = p1
+        player2 = p2
         game = Game([player1, player2], log = False)
         
         error = False
@@ -90,4 +90,8 @@ def simulate_n_games(n):
     print(errors)
 
 
-simulate_n_games(100)
+def main():
+    pass
+
+if __name__ == '__main__':
+    main()

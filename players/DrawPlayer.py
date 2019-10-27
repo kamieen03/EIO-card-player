@@ -1,4 +1,4 @@
-from Player import Player
+from players.Player import Player
 import numpy as np
 
 class DrawPlayer(Player):
