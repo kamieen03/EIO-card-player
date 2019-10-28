@@ -6,6 +6,7 @@ import random
 
 from Game import Game
 from players.SimplePlayer import SimplePlayer
+from players.CruelPlayer import CruelPlayer
 from players.RandomPlayer import RandomPlayer
 
     
@@ -14,8 +15,8 @@ from players.RandomPlayer import RandomPlayer
 
 
 def print_n_moves(n):
-    player1 = RandomPlayer("Player A")
-    player2 = RandomPlayer("Player B")
+    player1 = SimplePlayer("Player A")
+    player2 = CruelPlayer("Player B")
     game = Game([player1, player2])
 
     for i in range(n):
@@ -95,3 +96,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+simulate_n_games(100, SimplePlayer("Simple"), CruelPlayer("Cruel"))
+#print_n_moves(15)
