@@ -109,7 +109,6 @@ class ProbPlayer(Player):
             if self.pile:
                 a = self.pile.pop()
                 if a is not None: self.prob_vector[a] = 1
-            
         self.opponent_didnt_draw = False # reset flag
         self._recount_probs()
 

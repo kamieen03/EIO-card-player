@@ -16,6 +16,74 @@ class CruelPlayer(Player):
         super().__init__(name)
         self.overview = None
         self.pile = []
+        self.opponent_draw = True
+
+    ### player's simple strategy
+    def putCard(self, declared_card):
+
+        ### check if must draw
+        if len(self.cards) == 1 and declared_card is not None and self.cards[0][0] < declared_card[0]:
+            self._pop_n(1)
+            return "draw"
+
+        card = min(self.cards, key=lambda x: x[0])
+        self.pile.append(card)
+
+        declaration = (card[0], card[1])
+        if declared_card is not None:
+            min_val = declared_card[0]
+            if card[0] < min_val:
+                declaration = (min(min_val + 3, 14), declaration[1])
+        return card, declaration
+
+    def checkCard(self, opponent_declaration):
+        self.opponent_draw = False
+        self.pile.append(None)
+        if opponent_declaration in self.cards:
+            return True
+        elif opponent_declaration in [c for c, o in self.overview.items() if o == Owner.BOOT]:
+            return False
+        else:
+            return np.random.choice([True, False], p=[0.3, 0.7])
+
+    def getCheckFeedback(self, checked, iChecked, iDrewCards, revealedCard, noTakenCards, log=True):
+        if checked:
+            if iChecked:
+                if not iDrewCards:
+                    self._pop_and_assign(3, Owner.BOOT)
+                    self.overview[revealedCard] = Owner.BOOT
+                else:
+                    self._pop_n(3)
+            else:
+                if not iDrewCards:
+                    self._pop_and_assign(3, Owner.BOOT)
+                else:
+                    self._pop_n(3)
+        elif self.opponent_draw:
+            self._pop_and_assign(3, Owner.BOOT)
+
+        self.opponent_draw = True
+
+    def startGame(self, cards):
+        super().startGame(cards)
+        self.overview = self._init_overview()
+
+    def takeCards(self, cards_to_take):
+        self.cards = self.cards + cards_to_take
+        for card in cards_to_take:
+            self.overview[card] = Owner.ME
+
+    def _pop_n(self, n):
+        for i in range(n):
+            if self.pile:
+                self.pile.pop()
+
+    def _pop_and_assign(self, n, owner):
+        for i in range(n):
+            if len(self.pile) > 0:
+                top_card = self.pile.pop()
+                if top_card is not None:
+                    self.overview[top_card] = owner
 
     def _init_overview(self):
         overview = {(value, color): Owner.IDK for value in range(9, 15) for color in range(4)}
@@ -30,61 +98,16 @@ class CruelPlayer(Player):
                 n += 1
         return n
 
+        # print("------")
+        # print([c for c, o in self.overview.items() if o == Owner.ME])
+        # print([c for c, o in self.overview.items() if o == Owner.BOOT])
+        # print([c for c, o in self.overview.items() if o == Owner.IDK])
+        # print("------")
 
-    ### player's simple strategy
-    def putCard(self, declared_card):
-
-        ### check if must draw
-        if len(self.cards) == 1 and declared_card is not None and self.cards[0][0] < declared_card[0]:
-            return "draw"
-
-        card = min(self.cards, key=lambda x: x[0])
-        self.pile.append(card)
-
-        declaration = (card[0], card[1])
-        if declared_card is not None:
-            min_val = declared_card[0]
-            if card[0] < min_val: declaration = (min(min_val + 1, 14), declaration[1])
-        return card, declaration
-
-    def checkCard(self, opponent_declaration):
-        #print("------")
-        #print([c for c, o in self.overview.items() if o == Owner.ME])
-        #print(len([c for c, o in self.overview.items() if o == Owner.BOOT]))
-        #print([c for c, o in self.overview.items() if o == Owner.IDK])
-        #print("------")
-        if opponent_declaration in self.cards:
-            return True
-        elif opponent_declaration in [c for c, o in self.overview.items() if o == Owner.BOOT]:
-            return False
-        else:
-            return np.random.choice([True, False], p=[0.3, 0.7])
-
-    def getCheckFeedback(self, checked, iChecked, iDrewCards, revealedCard, noTakenCards, log=True):
-        if checked:
-            if iChecked:
-                if not iDrewCards:
-                    if noTakenCards > 0:
-                        self.overview[revealedCard] = Owner.BOOT
-                    if noTakenCards > 1:
-                        self.overview[self.pile.pop()] = Owner.BOOT
-            else:
-                if not iDrewCards:
-                    if noTakenCards > 0:
-                        self.overview[self.pile.pop()] = Owner.BOOT
-                    if noTakenCards > 2:
-                        self.overview[self.pile.pop()] = Owner.BOOT
-
-    def startGame(self, cards):
-        super().startGame(cards)
-        self.overview = self._init_overview()
-
-    def takeCards(self, cards_to_take):
-        self.cards = self.cards + cards_to_take
-        #print(cards_to_take)
-        for card in cards_to_take:
-            self.overview[card] = Owner.ME
-
-
-
+    # boot_cards = [c for c, o in self.overview.items() if o == Owner.BOOT]
+    # if len(boot_cards) > 0:
+    #     boot_max = max([c for c, o in self.overview.items() if o == Owner.BOOT])
+    #     better_then_boot_cards = [c for c in self.cards if c[0] >= boot_max[0]]
+    #     if len(better_then_boot_cards) > 0:
+    #         card = min(better_then_boot_cards)
 
