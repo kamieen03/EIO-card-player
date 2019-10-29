@@ -79,7 +79,7 @@ class ProbPlayer(Player):
                         a = self.pile.pop()
                         if a is not None: self.prob_vector[a] = 1
                     self.prob_vector[revealedCard] = 1
-                    self.seen_cards.add(revealedCArd)
+                    self.seen_cards.add(revealedCard)
                 else:
                     if self.pile: self.pile.pop()
                     if self.pile: self.pile.pop()

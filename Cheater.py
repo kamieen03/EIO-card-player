@@ -97,6 +97,3 @@ def main():
 if __name__ == '__main__':
     main()
 
-
-simulate_n_games(100, SimplePlayer("Simple"), CruelPlayer("Cruel"))
-#print_n_moves(15)
