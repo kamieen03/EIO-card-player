@@ -18,26 +18,12 @@ class CruelPlayer(Player):
         self.pile = []
         self.opponent_draw = True
 
-    def _init_overview(self):
-        overview = {(value, color): Owner.IDK for value in range(9, 15) for color in range(4)}
-        for card in self.cards:
-            overview[card] = Owner.ME
-        return overview
-
-    def _bigger_than_n(self, x):
-        n = 0
-        for card, owner in self.overview:
-            if x > card and owner == Owner.BOOT:
-                n += 1
-        return n
-
-
     ### player's simple strategy
     def putCard(self, declared_card):
 
         ### check if must draw
         if len(self.cards) == 1 and declared_card is not None and self.cards[0][0] < declared_card[0]:
-            self.pop_n(1)
+            self._pop_n(1)
             return "draw"
 
         card = min(self.cards, key=lambda x: x[0])
@@ -46,15 +32,11 @@ class CruelPlayer(Player):
         declaration = (card[0], card[1])
         if declared_card is not None:
             min_val = declared_card[0]
-            if card[0] < min_val: declaration = (min(min_val + 1, 14), declaration[1])
+            if card[0] < min_val:
+                declaration = (min(min_val + 3, 14), declaration[1])
         return card, declaration
 
     def checkCard(self, opponent_declaration):
-        print("------")
-        print([c for c, o in self.overview.items() if o == Owner.ME])
-        print([c for c, o in self.overview.items() if o == Owner.BOOT])
-        print([c for c, o in self.overview.items() if o == Owner.IDK])
-        print("------")
         self.opponent_draw = False
         self.pile.append(None)
         if opponent_declaration in self.cards:
@@ -68,31 +50,19 @@ class CruelPlayer(Player):
         if checked:
             if iChecked:
                 if not iDrewCards:
-                    self.pop_and_assign(3, Owner.BOOT)
+                    self._pop_and_assign(3, Owner.BOOT)
                     self.overview[revealedCard] = Owner.BOOT
-                    print(revealedCard)
                 else:
-                    self.pop_n(3)
+                    self._pop_n(3)
             else:
                 if not iDrewCards:
-                    self.pop_and_assign(3, Owner.BOOT)
+                    self._pop_and_assign(3, Owner.BOOT)
                 else:
-                    self.pop_n(3)
+                    self._pop_n(3)
         elif self.opponent_draw:
-            self.pop_and_assign(3, Owner.BOOT)
+            self._pop_and_assign(3, Owner.BOOT)
+
         self.opponent_draw = True
-
-    def pop_n(self, n):
-        for i in range(n):
-            if self.pile:
-                self.pile.pop()
-
-    def pop_and_assign(self, n, owner):
-        for i in range(n):
-            if len(self.pile) > 0:
-                top_card = self.pile.pop()
-                if top_card is not None:
-                    self.overview[top_card] = owner
 
     def startGame(self, cards):
         super().startGame(cards)
@@ -100,10 +70,44 @@ class CruelPlayer(Player):
 
     def takeCards(self, cards_to_take):
         self.cards = self.cards + cards_to_take
-        #print(cards_to_take)
         for card in cards_to_take:
             self.overview[card] = Owner.ME
 
+    def _pop_n(self, n):
+        for i in range(n):
+            if self.pile:
+                self.pile.pop()
 
+    def _pop_and_assign(self, n, owner):
+        for i in range(n):
+            if len(self.pile) > 0:
+                top_card = self.pile.pop()
+                if top_card is not None:
+                    self.overview[top_card] = owner
 
+    def _init_overview(self):
+        overview = {(value, color): Owner.IDK for value in range(9, 15) for color in range(4)}
+        for card in self.cards:
+            overview[card] = Owner.ME
+        return overview
+
+    def _bigger_than_n(self, x):
+        n = 0
+        for card, owner in self.overview:
+            if x > card and owner == Owner.BOOT:
+                n += 1
+        return n
+
+        # print("------")
+        # print([c for c, o in self.overview.items() if o == Owner.ME])
+        # print([c for c, o in self.overview.items() if o == Owner.BOOT])
+        # print([c for c, o in self.overview.items() if o == Owner.IDK])
+        # print("------")
+
+    # boot_cards = [c for c, o in self.overview.items() if o == Owner.BOOT]
+    # if len(boot_cards) > 0:
+    #     boot_max = max([c for c, o in self.overview.items() if o == Owner.BOOT])
+    #     better_then_boot_cards = [c for c in self.cards if c[0] >= boot_max[0]]
+    #     if len(better_then_boot_cards) > 0:
+    #         card = min(better_then_boot_cards)
 
