@@ -48,7 +48,6 @@ class ProbPlayer(Player):
             return "draw"
 
         card = min(self.cards, key=lambda x: x[0])
-        self.pile.append(card)
 
         declaration = (card[0], card[1])
         if declared_card is not None:
@@ -69,9 +68,19 @@ class ProbPlayer(Player):
         if checked:
             if iChecked:
                 if not iDrewCards:
-                    if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
-                    if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
-                    if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
+                    if self.pile:
+                        top = self.pile.pop()
+                        if top is not None:
+                            self.prob_vector[top] = 1
+                    if self.pile:
+                        top = self.pile.pop()
+                        if top is not None:
+                            self.prob_vector[top] = 1
+                    if self.pile:
+                        top = self.pile.pop()
+                        if top is not None:
+                            self.prob_vector[top] = 1
+
                     self.prob_vector[revealedCard] = 1
                 else:
                     if self.pile: self.pile.pop()
@@ -79,17 +88,35 @@ class ProbPlayer(Player):
                     if self.pile: self.pile.pop()
             else:
                 if not iDrewCards:
-                    if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
-                    if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
-                    if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
+                    if self.pile:
+                        top = self.pile.pop()
+                        if top is not None:
+                            self.prob_vector[top] = 1
+                    if self.pile:
+                        top = self.pile.pop()
+                        if top is not None:
+                            self.prob_vector[top] = 1
+                    if self.pile:
+                        top = self.pile.pop()
+                        if top is not None:
+                            self.prob_vector[top] = 1
                 else:
                     if self.pile: self.pile.pop()
                     if self.pile: self.pile.pop()
                     if self.pile: self.pile.pop()
         elif not self.opponent_didnt_draw:
-            if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
-            if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
-            if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
+            if self.pile:
+                top = self.pile.pop()
+                if top is not None:
+                    self.prob_vector[top] = 1
+            if self.pile:
+                top = self.pile.pop()
+                if top is not None:
+                    self.prob_vector[top] = 1
+            if self.pile:
+                top = self.pile.pop()
+                if top is not None:
+                    self.prob_vector[top] = 1
             
         self.opponent_didnt_draw = False # reset flag
         self._recount_probs()
