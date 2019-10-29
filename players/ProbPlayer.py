@@ -12,6 +12,7 @@ class ProbPlayer(Player):
         # current pile of put down cards, (i,j) if known card, None if unkown card
         self.pile = []
         self.opponent_didnt_draw = False
+        self.seen_cards = set()
 
     def _init_prob_vector(self):
         probs = {(i, j): 0.5 for i in range(9, 15) for j in range(4)}
@@ -21,18 +22,18 @@ class ProbPlayer(Player):
         return probs
     
     def _recount_probs(self):
-        #print(self.prob_vector)
         for c in self.cards:
+            self.seen_cards.add(c)
             self.prob_vector[c] = 0
 
-        non_sure = sum([v for k, v in self.prob_vector if v not in (0,1)])
+        non_sure = len([v for v in self.prob_vector.values() if v != 0])
         if non_sure > 8:
-            for k, v in self.prob_vector:
+            for k, v in self.prob_vector.items():
                 if 0 < v < 1:
                     self.prob_vector[k] = 1/(non_sure+8)
         elif non_sure == 8:
             # player obtains perfect information about cards' locations
-            for k, v in self.prob_vector:
+            for k, v in self.prob_vector.items():
                 if 0 < v < 1:
                     self.prob_vector[k] = 0
         else:
@@ -48,7 +49,6 @@ class ProbPlayer(Player):
             return "draw"
 
         card = min(self.cards, key=lambda x: x[0])
-        self.pile.append(card)
 
         declaration = (card[0], card[1])
         if declared_card is not None:
@@ -62,34 +62,53 @@ class ProbPlayer(Player):
         self.opponent_didnt_draw = True
         self.pile.append(None)
         # 1 is magic constant
-        ttp = self.prob_vector[opponent_declaration] * 1 # telling truth probability
+        ttp = self.prob_vector[opponent_declaration]  # telling truth probability
         return np.random.choice([True, False], p=[1-ttp, ttp])
 
     def getCheckFeedback(self, checked, iChecked, iDrewCards, revealedCard, noTakenCards, log=True):
         if checked:
             if iChecked:
                 if not iDrewCards:
-                    if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
-                    if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
-                    if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
+                    if self.pile:
+                        a = self.pile.pop()
+                        if a is not None: self.prob_vector[a] = 1
+                    if self.pile:
+                        a = self.pile.pop()
+                        if a is not None: self.prob_vector[a] = 1
+                    if self.pile:
+                        a = self.pile.pop()
+                        if a is not None: self.prob_vector[a] = 1
                     self.prob_vector[revealedCard] = 1
+                    self.seen_cards.add(revealedCArd)
                 else:
                     if self.pile: self.pile.pop()
                     if self.pile: self.pile.pop()
                     if self.pile: self.pile.pop()
             else:
                 if not iDrewCards:
-                    if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
-                    if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
-                    if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
+                    if self.pile:
+                        a = self.pile.pop()
+                        if a is not None: self.prob_vector[a] = 1
+                    if self.pile:
+                        a = self.pile.pop()
+                        if a is not None: self.prob_vector[a] = 1
+                    if self.pile:
+                        a = self.pile.pop()
+                        if a is not None: self.prob_vector[a] = 1
                 else:
                     if self.pile: self.pile.pop()
                     if self.pile: self.pile.pop()
                     if self.pile: self.pile.pop()
         elif not self.opponent_didnt_draw:
-            if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
-            if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
-            if self.pile and self.pile[-1] is not None: self.prob_vector[self.pile.pop()] = 1
+            if self.pile:
+                a = self.pile.pop()
+                if a is not None: self.prob_vector[a] = 1
+            if self.pile:
+                a = self.pile.pop()
+                if a is not None: self.prob_vector[a] = 1
+            if self.pile:
+                a = self.pile.pop()
+                if a is not None: self.prob_vector[a] = 1
             
         self.opponent_didnt_draw = False # reset flag
         self._recount_probs()
@@ -101,6 +120,8 @@ class ProbPlayer(Player):
     def startGame(self, cards):
         self.cards = cards
         self.prob_vector = self._init_prob_vector()
+        for x in cards:
+            self.seen_cards.add(x)
 
 
     # Add some cards to player's hand (if (s)he checked opponent's move, but (s)he was wrong)
