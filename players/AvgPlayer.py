@@ -54,7 +54,7 @@ class AvgPlayer(Player):
                         elif idk1:
                             declaration = random.choice(idk1)
                         else:
-                            declaration = (min(min_val, 14) + 1, random.randint(4))
+                            declaration = (min(min_val + 1, 14), random.randint(4))
                     else:
                         if idk3:
                             declaration = random.choice(idk3)
@@ -63,7 +63,7 @@ class AvgPlayer(Player):
                         elif idk1:
                             declaration = random.choice(idk1)
                         else:
-                            declaration = (min(min_val, 14) + 2, random.randint(4))
+                            declaration = (min(min_val + 2, 14), random.randint(4))
         return card, declaration
 
     def checkCard(self, opponent_declaration):
