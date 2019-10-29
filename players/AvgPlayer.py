@@ -11,7 +11,7 @@ import random
 ### Time limit per decision 0.01s !!!
 
 
-class CruelPlayer(Player):
+class AvgPlayer(Player):
 
     def __init__(self, name):
         super().__init__(name)
@@ -34,12 +34,36 @@ class CruelPlayer(Player):
         if declared_card is not None:
             min_val = declared_card[0]
             if card[0] < min_val:
-                possible_picks = [c for c, o in self.overview.items()
-                                    if c[0] >= min_val and o == Owner.ME]
-                if possible_picks:
-                    declaration = random.choice(possible_picks)
+                my = [c for c, o in self.overview.items() if c[0] >= min_val and o == Owner.ME]
+                idk1 = [c for c, o in self.overview.items() if c[0] >= min_val and o == Owner.IDK]
+                idk2 = [c for c in idk1 if c[0] >= min_val+1]
+                idk3 = [c for c in idk2 if c[0] >= min_val+2]
+
+                if my:
+                    declaration = random.choice(my)
                 else:
-                    declaration = (min(min_val + 1, 14), declaration[1])
+                    mean_val = np.mean(self.cards, axis=0)[0]
+                    if mean_val < 11:
+                        if idk1:
+                            declaration = random.choice(idk1)
+                        else:
+                            declaration = (min(min_val, 14), random.randint(4))
+                    elif mean_val < 12:
+                        if idk2:
+                            declaration = random.choice(idk2)
+                        elif idk1:
+                            declaration = random.choice(idk1)
+                        else:
+                            declaration = (min(min_val, 14) + 1, random.randint(4))
+                    else:
+                        if idk3:
+                            declaration = random.choice(idk3)
+                        elif idk2:
+                            declaration = random.choice(idk2)
+                        elif idk1:
+                            declaration = random.choice(idk1)
+                        else:
+                            declaration = (min(min_val, 14) + 2, random.randint(4))
         return card, declaration
 
     def checkCard(self, opponent_declaration):
